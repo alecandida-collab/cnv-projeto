@@ -1,0 +1,157 @@
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  .stage{width:100%;background:#0F1B2D;border-radius:12px;overflow:hidden;position:relative;min-height:360px;display:flex;flex-direction:column;justify-content:space-between;}
+  .scene{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 48px 32px;min-height:300px;text-align:center;animation:fadeIn 0.5s ease;}
+  .scene.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .scene-tag{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:99px;margin-bottom:20px;}
+  .scene-title{font-size:26px;font-weight:500;line-height:1.3;color:#F0EDE8;margin-bottom:14px;max-width:540px;}
+  .scene-title em{color:#5DCAA5;font-style:normal;}
+  .scene-body{font-size:15px;color:#9BA8B5;line-height:1.65;max-width:480px;}
+  .scene-body strong{color:#D4CAF0;font-weight:500;}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:520px;margin-top:16px;}
+  .compare-box{padding:14px 16px;border-radius:8px;text-align:left;}
+  .compare-box.bad{background:#3D1A1A;border:0.5px solid #7A3030;}
+  .compare-box.good{background:#0D2E21;border:0.5px solid #1D9E75;}
+  .compare-label{font-size:10px;font-weight:500;letter-spacing:0.06em;margin-bottom:6px;}
+  .compare-box.bad .compare-label{color:#F09595;}
+  .compare-box.good .compare-label{color:#5DCAA5;}
+  .compare-text{font-size:13px;line-height:1.5;}
+  .compare-box.bad .compare-text{color:#E8B4B4;}
+  .compare-box.good .compare-text{color:#A4DBC7;}
+  .steps-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:480px;margin-top:16px;}
+  .step-card{background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;text-align:left;}
+  .step-n{font-size:11px;font-weight:500;color:#5DCAA5;margin-bottom:4px;}
+  .step-t{font-size:13px;color:#D0CBD8;font-weight:500;margin-bottom:2px;}
+  .step-d{font-size:12px;color:#7A8491;line-height:1.4;}
+  .cta-scene{background:linear-gradient(135deg,#0D2333,#1A0D33);}
+  .cta-pill{font-size:13px;color:#C8C0F0;background:rgba(83,74,183,0.25);border:0.5px solid rgba(83,74,183,0.5);padding:8px 20px;border-radius:99px;margin-top:20px;}
+  .progress-bar{display:flex;gap:4px;padding:12px 16px;justify-content:center;background:rgba(0,0,0,0.2);}
+  .pip{height:3px;border-radius:99px;flex:1;max-width:48px;background:rgba(255,255,255,0.12);transition:background 0.3s;}
+  .pip.done{background:#1D9E75;}
+  .pip.active{background:#5DCAA5;}
+  .controls{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,0.3);}
+  .ctrl-btn{font-size:13px;color:#9BA8B5;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);border-radius:6px;padding:6px 16px;cursor:pointer;transition:background 0.15s;}
+  .ctrl-btn:hover{background:rgba(255,255,255,0.12);}
+  .ctrl-btn:disabled{opacity:0.3;cursor:default;}
+  .scene-counter{font-size:12px;color:#566070;}
+  .tag-gancho{background:rgba(55,138,221,0.2);color:#85B7EB;}
+  .tag-id{background:rgba(29,158,117,0.2);color:#5DCAA5;}
+  .tag-prob{background:rgba(186,117,23,0.2);color:#FAC775;}
+  .tag-solucao{background:rgba(83,74,183,0.2);color:#AFA9EC;}
+  .tag-ex{background:rgba(29,158,117,0.2);color:#5DCAA5;}
+  .tag-ferr{background:rgba(83,74,183,0.2);color:#AFA9EC;}
+  .tag-fech{background:rgba(186,117,23,0.2);color:#FAC775;}
+  .tag-cta{background:rgba(55,138,221,0.2);color:#85B7EB;}
+  .auto-bar{height:2px;background:rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+  .auto-fill{height:100%;background:#1D9E75;width:0%;transition:none;}
+  .auto-fill.running{transition:width linear;}
+</style>
+
+<h2 class="sr-only">Animação do roteiro completo — Comunicação Não Violenta no trabalho, 8 cenas interativas com navegação manual e automática</h2>
+
+<div class="stage">
+  <div class="auto-bar"><div class="auto-fill" id="autoFill"></div></div>
+
+  <div class="scene active" id="s0">
+    <span class="scene-tag tag-gancho">Abertura · 0:00–0:20</span>
+    <p class="scene-title">Você já saiu de uma conversa no trabalho pensando:<br><em>"não era isso que eu queria ter dito…"</em></p>
+    <p class="scene-body">No dia a dia, especialmente em ambientes com pressão, isso acontece mais do que a gente imagina.</p>
+  </div>
+
+  <div class="scene" id="s1">
+    <span class="scene-tag tag-id">Identificação · 0:20–0:50</span>
+    <p class="scene-title">Às vezes a gente responde <em>no impulso</em>,<br>ou evita falar e deixa acumular.</p>
+    <p class="scene-body">Surgem <strong>mal-entendidos</strong>, tensão, desgaste. E o mais importante — muitas vezes não é o conteúdo. <strong>É a forma como a gente fala.</strong></p>
+  </div>
+
+  <div class="scene" id="s2">
+    <span class="scene-tag tag-prob">Problema · 0:50–1:10</span>
+    <p class="scene-title">A comunicação impacta muito<br>além da convivência.</p>
+    <p class="scene-body">Ela influencia diretamente o <strong>clima organizacional</strong>, a <strong>produtividade</strong> e o <strong>bem-estar emocional</strong> de toda a equipe.</p>
+  </div>
+
+  <div class="scene" id="s3">
+    <span class="scene-tag tag-solucao">Solução · 1:10–1:30</span>
+    <p class="scene-title">Existe uma forma mais <em>consciente</em><br>de se comunicar.</p>
+    <p class="scene-body">A <strong>Comunicação Não Violenta</strong> ajuda a transformar reações automáticas em respostas mais claras, empáticas e eficazes.</p>
+  </div>
+
+  <div class="scene" id="s4">
+    <span class="scene-tag tag-ex">Exemplo prático · 1:30–2:10</span>
+    <p class="scene-title" style="margin-bottom:0;">A diferença aparece na forma de falar.</p>
+    <div class="compare">
+      <div class="compare-box bad">
+        <p class="compare-label">Impulsivo</p>
+        <p class="compare-text">"Você nunca faz isso direito."</p>
+      </div>
+      <div class="compare-box good">
+        <p class="compare-label">CNV</p>
+        <p class="compare-text">"Quando isso acontece, fico preocupado. Podemos alinhar juntos?"</p>
+      </div>
+    </div>
+    <p class="scene-body" style="margin-top:14px;font-size:13px;">A mensagem continua sendo colocada — mas de uma forma que <strong>abre espaço para diálogo</strong>.</p>
+  </div>
+
+  <div class="scene" id="s5">
+    <span class="scene-tag tag-ferr">Ferramenta · 2:10–2:30</span>
+    <p class="scene-title" style="margin-bottom:0;">Antes de responder no impulso,<br>passe por <em>4 perguntas</em>.</p>
+    <div class="steps-grid">
+      <div class="step-card"><p class="step-n">Passo 1</p><p class="step-t">Observação</p><p class="step-d">O que aconteceu, de fato?</p></div>
+      <div class="step-card"><p class="step-n">Passo 2</p><p class="step-t">Sentimento</p><p class="step-d">Como isso me impactou?</p></div>
+      <div class="step-card"><p class="step-n">Passo 3</p><p class="step-t">Necessidade</p><p class="step-d">O que é importante pra mim?</p></div>
+      <div class="step-card"><p class="step-n">Passo 4</p><p class="step-t">Pedido</p><p class="step-d">O que posso pedir claramente?</p></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s6">
+    <span class="scene-tag tag-fech">Fechamento · 2:30–2:50</span>
+    <p class="scene-title">Pequenas mudanças na forma de falar<br>fazem <em>grande diferença</em>.</p>
+    <p class="scene-body">Redução de conflitos. Melhora nas relações. Um ambiente de trabalho mais <strong>leve e saudável</strong> para todos.</p>
+  </div>
+
+  <div class="scene cta-scene" id="s7">
+    <span class="scene-tag tag-cta">CTA · 2:50–3:00</span>
+    <p class="scene-title" style="font-size:22px;">Se isso fez sentido pra você,<br>vale começar a observar:</p>
+    <p class="scene-title" style="font-size:20px;color:#C8C0F0;">Você está <em>comunicando</em>…<br>ou <em style="color:#F09595;">reagindo</em>?</p>
+    <div class="cta-pill">Projeto Extensionista UDF · CNV no Trabalho</div>
+  </div>
+
+  <div class="progress-bar" id="pips"></div>
+  <div class="controls">
+    <button class="ctrl-btn" id="btnPrev" onclick="nav(-1)" disabled>← Anterior</button>
+    <span class="scene-counter" id="counter">1 / 8</span>
+    <button class="ctrl-btn" id="btnNext" onclick="nav(1)">Próxima →</button>
+  </div>
+</div>
+
+<script>
+var cur=0,total=8,timer=null,DURATION=7000;
+var pips=document.getElementById('pips');
+var fill=document.getElementById('autoFill');
+for(var i=0;i<total;i++){var p=document.createElement('div');p.className='pip';p.id='pip'+i;pips.appendChild(p);}
+function updatePips(){for(var i=0;i<total;i++){var p=document.getElementById('pip'+i);p.className='pip'+(i<cur?' done':i===cur?' active':'');}}
+function show(n){
+  document.getElementById('s'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('btnPrev').disabled=cur===0;
+  document.getElementById('btnNext').disabled=cur===total-1;
+  document.getElementById('counter')=(cur+1)+' / '+total;
+  document.getElementById('counter').textContent=(cur+1)+' / '+total;
+  updatePips();
+  startAuto();
+}
+function nav(d){clearTimeout(timer);show(Math.max(0,Math.min(total-1,cur+d)));}
+function startAuto(){
+  clearTimeout(timer);
+  fill.style.transition='none';fill.style.width='0%';
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    fill.style.transition='width '+DURATION+'ms linear';
+    fill.style.width='100%';
+  });});
+  if(cur<total-1){timer=setTimeout(function(){show(cur+1);},DURATION);}
+}
+updatePips();startAuto();
+</script>

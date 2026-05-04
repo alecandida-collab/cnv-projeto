@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNV — Botões de Ação + Feedback</title>
+<style>
+  :root {
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --teal-dark: #0F6E56;
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --gray-text: #3C3C3C;
+    --gray-muted: #6B7280;
+    --gray-border: #E5E7EB;
+    --gray-bg: #F9FAFB;
+    --white: #FFFFFF;
+    --danger: #DC2626;
+    --success: #059669;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--gray-text);
+    background: transparent;
+    line-height: 1.6;
+  }
+
+  /* ── SEÇÃO FEEDBACK ── */
+  .feedback-section {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal-dark);
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--gray-text);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    font-size: 15px;
+    color: var(--gray-muted);
+    margin-bottom: 32px;
+  }
+
+  /* ── FORMULÁRIO ── */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-text);
+    margin-bottom: 8px;
+  }
+
+  .form-label span {
+    color: var(--teal);
+    margin-left: 2px;
+  }
+
+  /* Escala likert */
+  .likert {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .likert input[type="radio"] { display: none; }
+
+  .likert label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--gray-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+
+  .likert input:checked + label {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: var(--white);
+  }
+
+  .likert label:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+
+  .likert-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .likert-labels span {
+    font-size: 12px;
+    color: var(--gray-muted);
+  }
+
+  /* Checkboxes */
+  .check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+
+  .check-item:hover {
+    border-color: var(--teal);
+    background: var(--teal-light);
+  }
+
+  .check-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--teal);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .check-item span {
+    font-size: 13px;
+    color: var(--gray-text);
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--gray-text);
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.15s;
+    background: var(--white);
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  textarea::placeholder {
+    color: #9CA3AF;
+  }
+
+  /* Botão enviar */
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--teal);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 8px;
+  }
+
+  .btn-submit:hover { background: var(--teal-dark); }
+  .btn-submit:active { transform: scale(0.98); }
+
+  /* Mensagem de sucesso */
+  .success-msg {
+    display: none;
+    text-align: center;
+    padding: 32px 24px;
+    background: var(--teal-light);
+    border: 1.5px solid var(--teal);
+    border-radius: var(--radius);
+  }
+
+  .success-msg.visible { display: block; }
+
+  .success-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 22px;
+    color: white;
+  }
+
+  .success-msg h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    margin-bottom: 6px;
+  }
+
+  .success-msg p {
+    font-size: 14px;
+    color: var(--teal-dark);
+    opacity: 0.8;
+  }
+
+  /* ── BOTÕES DE AÇÃO (seção final) ── */
+  .actions-section {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    border-top: 1px solid var(--gray-border);
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    border: 1.5px solid;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+    font-family: inherit;
+  }
+
+  .action-btn:active { transform: scale(0.97); }
+
+  .action-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .action-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 1px;
+  }
+
+  .action-text span {
+    font-size: 12px;
+  }
+
+  /* Variante primária (teal) */
+  .btn-primary {
+    border-color: var(--teal);
+    background: var(--teal-light);
+  }
+
+  .btn-primary .action-icon { background: var(--teal); color: white; }
+  .btn-primary .action-text strong { color: var(--teal-dark); }
+  .btn-primary .action-text span { color: var(--teal); }
+  .btn-primary:hover { background: #C8EEE2; border-color: var(--teal-dark); }
+
+  /* Variante secundária (purple) */
+  .btn-secondary {
+    border-color: #AFA9EC;
+    background: var(--purple-light);
+  }
+
+  .btn-secondary .action-icon { background: var(--purple); color: white; }
+  .btn-secondary .action-text strong { color: var(--purple-dark); }
+  .btn-secondary .action-text span { color: var(--purple); }
+  .btn-secondary:hover { background: #E0DEF9; border-color: var(--purple-dark); }
+
+  /* Variante neutra */
+  .btn-neutral {
+    border-color: var(--gray-border);
+    background: var(--gray-bg);
+  }
+
+  .btn-neutral .action-icon { background: #E5E7EB; color: #374151; }
+  .btn-neutral .action-text strong { color: var(--gray-text); }
+  .btn-neutral .action-text span { color: var(--gray-muted); }
+  .btn-neutral:hover { background: #F3F4F6; border-color: #9CA3AF; }
+
+  /* Botão de compartilhar — full width */
+  .btn-share {
+    grid-column: 1 / -1;
+    border-color: var(--teal);
+    background: var(--teal);
+    justify-content: center;
+  }
+
+  .btn-share .action-icon { background: rgba(255,255,255,0.2); }
+  .btn-share .action-text strong { color: white; font-size: 15px; }
+  .btn-share .action-text span { color: rgba(255,255,255,0.8); }
+  .btn-share:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
+
+  /* Modal de compartilhar */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 24px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .modal-sub {
+    font-size: 13px;
+    color: var(--gray-muted);
+    margin-bottom: 20px;
+  }
+
+  .share-url {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--gray-bg);
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 16px;
+  }
+
+  .share-url input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: var(--gray-text);
+    outline: none;
+    font-family: inherit;
+  }
+
+  .copy-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    background: var(--teal-light);
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .copy-btn:hover { background: #B2E4D3; }
+
+  .share-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .share-opt {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 8px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-text);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    text-decoration: none;
+    display: block;
+  }
+
+  .share-opt:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-light); }
+
+  .modal-close {
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    font-size: 14px;
+    color: var(--gray-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .modal-close:hover { background: var(--gray-bg); }
+
+  /* Recursos CNV */
+  .resources-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .resource-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    background: var(--white);
+    transition: all 0.15s;
+  }
+
+  .resource-item:hover { border-color: var(--purple); background: var(--purple-light); }
+
+  .res-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--purple-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .res-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-text);
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  .res-desc {
+    font-size: 12px;
+    color: var(--gray-muted);
+  }
+
+  @media (max-width: 480px) {
+    .actions-grid { grid-template-columns: 1fr; }
+    .check-grid { grid-template-columns: 1fr; }
+    .likert label { width: 38px; height: 38px; }
+  }
+</style>
+
+<!-- ════════════════════════════════════
+     BLOCO 1 — FORMULÁRIO DE FEEDBACK
+     Cole este bloco na seção #feedback do Gamma
+     ════════════════════════════════════ -->
+<section class="feedback-section" id="feedback">
+  <p class="section-label">Avaliação rápida</p>
+  <h2 class="section-title">O que você achou<br>desta experiência?</h2>
+  <p class="section-sub">Sua opinião ajuda a aprimorar este projeto extensionista. Leva menos de 1 minuto.</p>
+
+  <form id="feedbackForm">
+
+    <!-- Pergunta 1: NPS -->
+    <div class="form-group">
+      <label class="form-label">O quanto este conteúdo foi útil para você? <span>*</span></label>
+      <div class="likert" id="likert1">
+        <input type="radio" name="utilidade" id="u1" value="1"><label for="u1">1</label>
+        <input type="radio" name="utilidade" id="u2" value="2"><label for="u2">2</label>
+        <input type="radio" name="utilidade" id="u3" value="3"><label for="u3">3</label>
+        <input type="radio" name="utilidade" id="u4" value="4"><label for="u4">4</label>
+        <input type="radio" name="utilidade" id="u5" value="5"><label for="u5">5</label>
+      </div>
+      <div class="likert-labels">
+        <span>Nada útil</span>
+        <span>Muito útil</span>
+      </div>
+    </div>
+
+    <!-- Pergunta 2: O que ficou -->
+    <div class="form-group">
+      <label class="form-label">O que você vai levar desta experiência? <span>*</span></label>
+      <div class="check-grid">
+        <label class="check-item"><input type="checkbox" name="aprendizado" value="os4passos"><span>Os 4 passos da CNV</span></label>
+        <label class="check-item"><input type="checkbox" name="aprendizado" value="exemplo"><span>O exemplo comparativo</span></label>
+        <label class="check-item"><input type="checkbox" name="aprendizado" value="reflexao"><span>Uma nova perspectiva</span></label>
+        <label class="check-item"><input type="checkbox" name="aprendizado" value="aplicar"><span>Vontade de aplicar no trabalho</span></label>
+        <label class="check-item"><input type="checkbox" name="aprendizado" value="pesquisar"><span>Interesse em pesquisar mais</span></label>
+        <label class="check-item"><input type="checkbox" name="aprendizado" value="nada"><span>Não identifico aprendizados</span></label>
+      </div>
+    </div>
+
+    <!-- Pergunta 3: Comentário livre -->
+    <div class="form-group">
+      <label class="form-label" for="comentario">Deixe um comentário (opcional)</label>
+      <textarea id="comentario" name="comentario" placeholder="Sugestões, críticas, experiências pessoais com comunicação no trabalho..."></textarea>
+    </div>
+
+    <button type="button" class="btn-submit" onclick="enviarFeedback()">Enviar avaliação</button>
+  </form>
+
+  <div class="success-msg" id="successMsg">
+    <div class="success-icon">✓</div>
+    <h3>Obrigado pela sua resposta!</h3>
+    <p>Sua avaliação contribui diretamente para a melhoria deste projeto extensionista.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     BLOCO 2 — BOTÕES DE AÇÃO FINAIS
+     Cole este bloco na seção final do Gamma
+     ════════════════════════════════════ -->
+<section class="actions-section" id="acoes-finais">
+  <p class="section-label">Continue sua jornada</p>
+  <h2 class="section-title">O que fazer a seguir?</h2>
+
+  <div class="actions-grid">
+
+    <!-- Rever os 4 passos -->
+    <button class="action-btn btn-secondary" onclick="document.getElementById('metodo') ? document.getElementById('metodo').scrollIntoView({behavior:'smooth'}) : window.scrollTo(0,0)">
+      <div class="action-icon">↺</div>
+      <div class="action-text">
+        <strong>Rever os 4 passos</strong>
+        <span>Observação, sentimento, necessidade, pedido</span>
+      </div>
+    </button>
+
+    <!-- Aprender mais sobre CNV -->
+    <button class="action-btn btn-neutral" onclick="document.getElementById('recursos-cnv').style.display='block';this.style.display='none'">
+      <div class="action-icon">📚</div>
+      <div class="action-text">
+        <strong>Aprender mais sobre CNV</strong>
+        <span>Livros, vídeos e materiais recomendados</span>
+      </div>
+    </button>
+
+    <!-- Compartilhar -->
+    <button class="action-btn btn-share" onclick="document.getElementById('shareModal').classList.add('open')">
+      <div class="action-icon">⇗</div>
+      <div class="action-text">
+        <strong>Compartilhar este material</strong>
+        <span>Envie para colegas e equipe</span>
+      </div>
+    </button>
+
+  </div>
+
+  <!-- Recursos CNV (oculto até clicar) -->
+  <div id="recursos-cnv" style="display:none; margin-top:20px;">
+    <p style="font-size:14px;font-weight:600;color:#374151;margin-bottom:4px;">Materiais recomendados sobre CNV</p>
+    <p style="font-size:13px;color:#6B7280;margin-bottom:12px;">Seleção de recursos para aprofundar o aprendizado.</p>
+    <div class="resources-list">
+      <a class="resource-item" href="https://www.amazon.com.br/Comunicação-Não-Violenta-Marshall-Rosenberg/dp/8575550802" target="_blank" rel="noopener">
+        <div class="res-icon">📖</div>
+        <div>
+          <strong class="res-title">Comunicação Não Violenta — Marshall Rosenberg</strong>
+          <span class="res-desc">Livro base da abordagem CNV. Leitura fundamental.</span>
+        </div>
+      </a>
+      <a class="resource-item" href="https://www.cnvc.org" target="_blank" rel="noopener">
+        <div class="res-icon">🌐</div>
+        <div>
+          <strong class="res-title">Center for Nonviolent Communication (CNVC)</strong>
+          <span class="res-desc">Site oficial com recursos, formações e comunidade.</span>
+        </div>
+      </a>
+      <a class="resource-item" href="https://www.youtube.com/results?search_query=comunicacao+nao+violenta+marshall+rosenberg" target="_blank" rel="noopener">
+        <div class="res-icon">▶</div>
+        <div>
+          <strong class="res-title">Vídeos de Marshall Rosenberg</strong>
+          <span class="res-desc">Palestras e demonstrações práticas no YouTube.</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     MODAL DE COMPARTILHAMENTO
+     Fica no final da página, fora dos blocos
+     ════════════════════════════════════ -->
+<div class="modal-overlay" id="shareModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <h3 class="modal-title">Compartilhar material</h3>
+    <p class="modal-sub">Envie o link desta experiência para colegas e equipe.</p>
+    <div class="share-url">
+      <input type="text" id="shareUrl" value="https://cnv-saude-trabalho-8fqcnu9.gamma.site" readonly>
+      <button class="copy-btn" onclick="copiarLink()">Copiar</button>
+    </div>
+    <div class="share-options">
+      <a class="share-opt" href="https://wa.me/?text=Veja%20este%20material%20sobre%20CNV%20no%20trabalho:%20https://cnv-saude-trabalho-8fqcnu9.gamma.site" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="share-opt" href="https://www.linkedin.com/sharing/share-offsite/?url=https://cnv-saude-trabalho-8fqcnu9.gamma.site" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="share-opt" href="mailto:?subject=Material%20sobre%20CNV%20no%20Trabalho&body=Acesse:%20https://cnv-saude-trabalho-8fqcnu9.gamma.site" target="_blank" rel="noopener">E-mail</a>
+    </div>
+    <button class="modal-close" onclick="document.getElementById('shareModal').classList.remove('open')">Fechar</button>
+  </div>
+</div>
+
+
+<script>
+function enviarFeedback() {
+  var utilidade = document.querySelector('input[name="utilidade"]:checked');
+  var aprendizados = document.querySelectorAll('input[name="aprendizado"]:checked');
+  if (!utilidade) { alert('Por favor, avalie a utilidade do conteúdo.'); return; }
+  if (aprendizados.length === 0) { alert('Selecione pelo menos um aprendizado.'); return; }
+  document.getElementById('feedbackForm').style.display = 'none';
+  document.getElementById('successMsg').classList.add('visible');
+}
+
+function copiarLink() {
+  var inp = document.getElementById('shareUrl');
+  inp.select();
+  inp.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(inp.value).then(function() {
+      var btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copiado!';
+      btn.style.background = '#059669';
+      btn.style.color = 'white';
+      setTimeout(function() { btn.textContent = 'Copiar'; btn.style.background = ''; btn.style.color = ''; }, 2000);
+    });
+  } catch(e) {
+    document.execCommand('copy');
+  }
+}
+</script>
+
+</html>
