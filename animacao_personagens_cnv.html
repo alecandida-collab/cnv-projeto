@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNV em Ação — Animação</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #F0F4FF;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 16px 40px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 680px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  /* Header */
+  .header {
+    background: #1D2B4E;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-title { color: white; font-size: 15px; font-weight: 600; }
+  .header-sub { color: #8B9CC4; font-size: 12px; margin-top: 2px; }
+  .scene-badge {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 99px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Stage */
+  .stage {
+    background: #F7F8FC;
+    position: relative;
+    height: 260px;
+    overflow: hidden;
+    border-bottom: 1px solid #E8EBF5;
+  }
+
+  /* Floor */
+  .floor {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: #E8EBF5;
+    border-top: 2px solid #D4D8EA;
+  }
+
+  /* Background elements */
+  .bg-window {
+    position: absolute;
+    top: 20px; right: 40px;
+    width: 80px; height: 60px;
+    background: #D6E8FF;
+    border-radius: 4px;
+    border: 2px solid #B8D0F0;
+  }
+  .bg-window::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 2px;
+    background: #B8D0F0;
+    transform: translateY(-50%);
+  }
+  .bg-window::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 2px;
+    background: #B8D0F0;
+    transform: translateX(-50%);
+  }
+  .bg-plant {
+    position: absolute;
+    bottom: 58px; right: 30px;
+    font-size: 32px;
+    line-height: 1;
+  }
+  .bg-desk {
+    position: absolute;
+    bottom: 58px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 8px;
+    background: #C8A97A;
+    border-radius: 4px;
+  }
+  .bg-desk::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: 20px;
+    width: 8px; height: 30px;
+    background: #B8956A;
+    border-radius: 2px;
+    box-shadow: 72px 0 0 #B8956A;
+  }
+
+  /* Characters */
+  .char {
+    position: absolute;
+    bottom: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.4s ease;
+  }
+  .char-left { left: 60px; }
+  .char-right { right: 60px; }
+
+  .char svg { display: block; }
+
+  .char-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6B7280;
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Bobble animations */
+  @keyframes bobble {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes bobble-right {
+    0%, 100% { transform: translateY(0) scaleX(-1); }
+    50% { transform: translateY(-4px) scaleX(-1); }
+  }
+  .char-left.talking { animation: bobble 0.5s ease infinite; }
+  .char-right { transform: scaleX(-1); }
+  .char-right.talking { animation: bobble-right 0.5s ease infinite; }
+  .char-right .char-name { transform: scaleX(-1); }
+
+  /* Speech bubble */
+  .bubble {
+    position: absolute;
+    max-width: 200px;
+    background: white;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #1D2B4E;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    border: 1.5px solid #E0E4F0;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .bubble.show { opacity: 1; transform: translateY(0); }
+  .bubble-left {
+    left: 130px;
+    bottom: 180px;
+  }
+  .bubble-left::after {
+    content: '';
+    position: absolute;
+    bottom: -8px; left: 16px;
+    border: 8px solid transparent;
+    border-top-color: white;
+    border-bottom: 0;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.08));
+  }
+  .bubble-right {
+    right: 130px;
+    bottom: 180px;
+    text-align: right;
+  }
+  .bubble-right::after {
+    content: '';
+    position: absolute;
+    bottom: -8px; right: 16px;
+    border: 8px solid transparent;
+    border-top-color: white;
+    border-bottom: 0;
+  }
+  .bubble.bad { border-color: #FECACA; background: #FFF5F5; color: #991B1B; }
+  .bubble.bad::after { border-top-color: #FFF5F5; }
+  .bubble.good { border-color: #A7F3D0; background: #F0FDF9; color: #065F46; }
+  .bubble.good::after { border-top-color: #F0FDF9; }
+  .bubble.neutral { border-color: #E0E4F0; background: white; }
+
+  /* Bottom panel */
+  .panel { padding: 20px 24px; }
+
+  .scene-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .scene-title.bad { color: #DC2626; }
+  .scene-title.good { color: #059669; }
+  .scene-title.neutral { color: #6366F1; }
+
+  .scene-text {
+    font-size: 15px;
+    color: #374151;
+    line-height: 1.6;
+    min-height: 48px;
+    margin-bottom: 16px;
+  }
+
+  /* Progress dots */
+  .dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.active { background: #6366F1; transform: scale(1.3); }
+  .dot.done { background: #A5B4FC; }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    font-family: inherit;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-prev {
+    background: #F3F4F6;
+    color: #6B7280;
+  }
+  .btn-prev:hover { background: #E5E7EB; }
+  .btn-next {
+    background: #6366F1;
+    color: white;
+    flex: 1;
+  }
+  .btn-next:hover { background: #4F46E5; }
+  .btn-next:disabled { background: #C7D2FE; cursor: default; }
+  .btn-restart {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1.5px solid #A7F3D0;
+    flex: 1;
+  }
+  .btn-restart:hover { background: #D1FAE5; }
+
+  .progress-bar {
+    height: 3px;
+    background: #E5E7EB;
+    border-radius: 99px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #6366F1;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .step-label {
+    font-size: 12px;
+    color: #9CA3AF;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <div>
+      <div class="header-title">CNV em Ação</div>
+      <div class="header-sub">Comunicação Não Violenta no trabalho</div>
+    </div>
+    <div class="scene-badge" id="sceneBadge">Cena 1 de 8</div>
+  </div>
+
+  <div class="stage">
+    <div class="bg-window"></div>
+    <div class="bg-plant">🌿</div>
+    <div class="bg-desk"></div>
+    <div class="floor"></div>
+
+    <!-- Personagem esquerda: Ana -->
+    <div class="char char-left" id="charLeft">
+      <svg width="64" height="100" viewBox="0 0 64 100">
+        <!-- corpo -->
+        <rect x="18" y="44" width="28" height="36" rx="6" fill="#6366F1"/>
+        <!-- braços -->
+        <rect x="6" y="46" width="12" height="8" rx="4" fill="#6366F1"/>
+        <rect x="46" y="46" width="12" height="8" rx="4" fill="#6366F1"/>
+        <!-- pernas -->
+        <rect x="20" y="76" width="10" height="20" rx="4" fill="#4338CA"/>
+        <rect x="34" y="76" width="10" height="20" rx="4" fill="#4338CA"/>
+        <!-- pescoço -->
+        <rect x="28" y="36" width="8" height="10" rx="3" fill="#FBBF90"/>
+        <!-- cabeça -->
+        <circle cx="32" cy="26" r="18" fill="#FBBF90"/>
+        <!-- cabelo -->
+        <ellipse cx="32" cy="12" rx="18" ry="8" fill="#92400E"/>
+        <rect x="14" y="12" width="6" height="16" rx="3" fill="#92400E"/>
+        <rect x="44" y="12" width="6" height="16" rx="3" fill="#92400E"/>
+        <!-- olhos -->
+        <circle cx="25" cy="26" r="3" fill="white"/>
+        <circle cx="39" cy="26" r="3" fill="white"/>
+        <circle cx="26" cy="27" r="1.5" fill="#1D2B4E" id="eyeL"/>
+        <circle cx="40" cy="27" r="1.5" fill="#1D2B4E" id="eyeR"/>
+        <!-- boca -->
+        <path d="M27 33 Q32 37 37 33" stroke="#C2855A" stroke-width="1.5" fill="none" stroke-linecap="round" id="mouthLeft"/>
+      </svg>
+      <div class="char-name">Ana</div>
+    </div>
+
+    <!-- Personagem direita: Carlos -->
+    <div class="char char-right" id="charRight">
+      <svg width="64" height="100" viewBox="0 0 64 100">
+        <!-- corpo -->
+        <rect x="18" y="44" width="28" height="36" rx="6" fill="#0F766E"/>
+        <!-- braços -->
+        <rect x="6" y="46" width="12" height="8" rx="4" fill="#0F766E"/>
+        <rect x="46" y="46" width="12" height="8" rx="4" fill="#0F766E"/>
+        <!-- pernas -->
+        <rect x="20" y="76" width="10" height="20" rx="4" fill="#134E4A"/>
+        <rect x="34" y="76" width="10" height="20" rx="4" fill="#134E4A"/>
+        <!-- pescoço -->
+        <rect x="28" y="36" width="8" height="10" rx="3" fill="#FBBF90"/>
+        <!-- cabeça -->
+        <circle cx="32" cy="26" r="18" fill="#FBBF90"/>
+        <!-- cabelo curto -->
+        <ellipse cx="32" cy="11" rx="18" ry="7" fill="#1C1917"/>
+        <!-- olhos -->
+        <circle cx="25" cy="26" r="3" fill="white"/>
+        <circle cx="39" cy="26" r="3" fill="white"/>
+        <circle cx="26" cy="27" r="1.5" fill="#1D2B4E"/>
+        <circle cx="40" cy="27" r="1.5" fill="#1D2B4E"/>
+        <!-- boca neutra -->
+        <path d="M27 33 Q32 36 37 33" stroke="#C2855A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="char-name">Carlos</div>
+    </div>
+
+    <!-- Balões de fala -->
+    <div class="bubble bubble-left" id="bubbleLeft"></div>
+    <div class="bubble bubble-right" id="bubbleRight"></div>
+  </div>
+
+  <div class="panel">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:12.5%"></div></div>
+    <div class="step-label" id="stepLabel">Cena 1 de 8</div>
+    <div class="dots" id="dots"></div>
+    <div class="scene-title neutral" id="sceneTitle">Contexto</div>
+    <div class="scene-text" id="sceneText">No trabalho, Carlos precisava que Ana entregasse um relatório. A entrega atrasou e ele ficou frustrado.</div>
+    <div class="controls" id="controls">
+      <button class="btn btn-prev" id="btnPrev" onclick="nav(-1)" disabled>←</button>
+      <button class="btn btn-next" id="btnNext" onclick="nav(1)">Próxima cena →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var scenes = [
+  {
+    title: "Contexto", type: "neutral",
+    text: "No trabalho, Carlos precisava que Ana entregasse um relatório. A entrega atrasou e ele ficou frustrado.",
+    speaker: "none", bubbleType: "neutral", bubble: "",
+    leftTalking: false, rightTalking: false
+  },
+  {
+    title: "Reação impulsiva", type: "bad",
+    text: "Carlos reage no impulso, sem pensar no impacto das suas palavras.",
+    speaker: "right", bubbleType: "bad", bubble: '"Você nunca entrega nada no prazo! É sempre assim."',
+    leftTalking: false, rightTalking: true
+  },
+  {
+    title: "Reação de Ana", type: "bad",
+    text: "Ana se sente atacada e parte para a defensiva. O conflito aumenta.",
+    speaker: "left", bubbleType: "bad", bubble: '"Não é verdade! Você nunca reconhece meu esforço."',
+    leftTalking: true, rightTalking: false
+  },
+  {
+    title: "O resultado", type: "bad",
+    text: "Nenhum problema foi resolvido. Ficou tensão, mágoa e afastamento entre os dois.",
+    speaker: "none", bubbleType: "neutral", bubble: "",
+    leftTalking: false, rightTalking: false
+  },
+  {
+    title: "Recomeçando com CNV", type: "neutral",
+    text: "Vamos ver como seria a mesma situação com Comunicação Não Violenta. Carlos para, respira e aplica os 4 passos.",
+    speaker: "none", bubbleType: "neutral", bubble: "",
+    leftTalking: false, rightTalking: false
+  },
+  {
+    title: "Observação + Sentimento", type: "good",
+    text: "Carlos descreve o fato sem julgamento e compartilha como se sentiu — sem culpar Ana.",
+    speaker: "right", bubbleType: "good", bubble: '"Quando o relatório chega depois do prazo, fico preocupado com o andamento do projeto."',
+    leftTalking: false, rightTalking: true
+  },
+  {
+    title: "Necessidade + Pedido", type: "good",
+    text: "Carlos identifica o que precisa e faz um pedido claro e possível de ser atendido.",
+    speaker: "right", bubbleType: "good", bubble: '"Preciso de previsibilidade. Você pode me avisar com antecedência quando houver dificuldade?"',
+    leftTalking: false, rightTalking: true
+  },
+  {
+    title: "A resposta de Ana", type: "good",
+    text: "Ana se sente respeitada, ouvida e responde com abertura. O diálogo se torna possível.",
+    speaker: "left", bubbleType: "good", bubble: '"Claro, entendo. Tive dificuldades dessa vez. Próxima vez aviso antes."',
+    leftTalking: true, rightTalking: false
+  }
+];
+
+var cur = 0;
+var total = scenes.length;
+
+var dotsEl = document.getElementById('dots');
+for (var i = 0; i < total; i++) {
+  var d = document.createElement('div');
+  d.className = 'dot';
+  d.id = 'dot' + i;
+  dotsEl.appendChild(d);
+}
+
+function render() {
+  var s = scenes[cur];
+
+  document.getElementById('sceneBadge').textContent = 'Cena ' + (cur+1) + ' de ' + total;
+  document.getElementById('stepLabel').textContent = 'Cena ' + (cur+1) + ' de ' + total;
+  document.getElementById('progressFill').style.width = ((cur+1)/total*100) + '%';
+
+  var titleEl = document.getElementById('sceneTitle');
+  titleEl.textContent = s.title;
+  titleEl.className = 'scene-title ' + s.type;
+  document.getElementById('sceneText').textContent = s.text;
+
+  // dots
+  for (var i = 0; i < total; i++) {
+    var d = document.getElementById('dot' + i);
+    d.className = 'dot' + (i === cur ? ' active' : i < cur ? ' done' : '');
+  }
+
+  // characters
+  var cl = document.getElementById('charLeft');
+  var cr = document.getElementById('charRight');
+  cl.className = 'char char-left' + (s.leftTalking ? ' talking' : '');
+  cr.className = 'char char-right' + (s.rightTalking ? ' talking' : '');
+
+  // bubbles
+  var bl = document.getElementById('bubbleLeft');
+  var br = document.getElementById('bubbleRight');
+  bl.className = 'bubble bubble-left';
+  br.className = 'bubble bubble-right';
+  bl.textContent = '';
+  br.textContent = '';
+
+  if (s.speaker === 'left') {
+    bl.textContent = s.bubble;
+    bl.className = 'bubble bubble-left ' + s.bubbleType;
+    setTimeout(function(){ bl.classList.add('show'); }, 50);
+  } else if (s.speaker === 'right') {
+    br.textContent = s.bubble;
+    br.className = 'bubble bubble-right ' + s.bubbleType;
+    setTimeout(function(){ br.classList.add('show'); }, 50);
+  }
+
+  // buttons
+  document.getElementById('btnPrev').disabled = cur === 0;
+
+  var btnNext = document.getElementById('btnNext');
+  var controls = document.getElementById('controls');
+  if (cur === total - 1) {
+    controls.innerHTML = '<button class="btn btn-prev" onclick="nav(-1)">← Voltar</button><button class="btn btn-restart" onclick="restart()">↺ Ver novamente</button>';
+  } else {
+    controls.innerHTML = '<button class="btn btn-prev" id="btnPrev" onclick="nav(-1)"' + (cur===0?' disabled':'') + '>←</button><button class="btn btn-next" onclick="nav(1)">Próxima cena →</button>';
+  }
+}
+
+function nav(d) {
+  cur = Math.max(0, Math.min(total-1, cur+d));
+  render();
+}
+
+function restart() {
+  cur = 0;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
