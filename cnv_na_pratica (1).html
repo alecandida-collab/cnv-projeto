@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNV na Prática</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #EFEAE2;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+  .wrap { max-width: 560px; width: 100%; }
+  .titulo { font-size: 28px; font-weight: 700; color: #1F1F1F; line-height: 1.25; margin-bottom: 10px; opacity: 0; transform: translateY(16px); animation: up 0.6s ease 0.1s forwards; }
+  .subtitulo { font-size: 15px; color: #6B6B6B; line-height: 1.6; margin-bottom: 32px; opacity: 0; transform: translateY(12px); animation: up 0.6s ease 0.3s forwards; }
+  @keyframes up { to { opacity: 1; transform: translateY(0); } }
+  .progresso-wrap { background: #D9D3C8; border-radius: 99px; height: 4px; margin-bottom: 28px; overflow: hidden; opacity: 0; animation: up 0.6s ease 1.3s forwards; }
+  .progresso-fill { height: 100%; background: #6E7563; border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+  .passos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .passo { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; background: #F8F6F2; border-radius: 12px; border: 1.5px solid #D9D3C8; cursor: pointer; transition: all 0.25s ease; opacity: 0; transform: translateX(-16px); }
+  .passo:nth-child(1) { animation: slideIn 0.5s ease 0.5s forwards; }
+  .passo:nth-child(2) { animation: slideIn 0.5s ease 0.7s forwards; }
+  .passo:nth-child(3) { animation: slideIn 0.5s ease 0.9s forwards; }
+  .passo:nth-child(4) { animation: slideIn 0.5s ease 1.1s forwards; }
+  @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+  .passo:hover { border-color: #6E7563; background: #EDE8DF; transform: translateX(4px); }
+  .passo.ativo { border-color: #6E7563; background: #EDE8DF; }
+  .passo-num { width: 34px; height: 34px; border-radius: 50%; background: #6E7563; color: white; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .passo-conteudo { flex: 1; }
+  .passo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+  .passo-emoji { font-size: 17px; }
+  .passo-titulo { font-size: 15px; font-weight: 700; color: #1F1F1F; }
+  .passo-texto { font-size: 13px; color: #6B6B6B; line-height: 1.55; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, opacity 0.35s ease, margin-top 0.2s ease; opacity: 0; margin-top: 0; }
+  .passo.ativo .passo-texto { max-height: 80px; opacity: 1; margin-top: 6px; }
+  .passo-arrow { font-size: 11px; color: #9CA3AF; transition: transform 0.3s; flex-shrink: 0; margin-top: 10px; }
+  .passo.ativo .passo-arrow { transform: rotate(180deg); color: #6E7563; }
+  .frase-final { background: #1F1F1F; border-radius: 16px; padding: 28px; text-align: center; opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; margin-bottom: 14px; }
+  .frase-final.show { opacity: 1; transform: translateY(0); }
+  .frase-aspas { font-size: 36px; color: #6E7563; line-height: 1; margin-bottom: 10px; }
+  .frase-texto { font-size: 17px; font-weight: 600; color: white; line-height: 1.55; margin-bottom: 14px; }
+  .frase-texto em { color: #B5BAA8; font-style: normal; }
+  .frase-tag { font-size: 11px; color: #6B6B6B; letter-spacing: 0.06em; text-transform: uppercase; }
+  .cta { display: flex; gap: 10px; opacity: 0; transition: opacity 0.6s ease 0.2s; }
+  .cta.show { opacity: 1; }
+  .cta-btn { flex: 1; padding: 13px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; text-decoration: none; text-align: center; display: block; }
+  .cta-primary { background: #6E7563; color: white; }
+  .cta-primary:hover { background: #5A6151; }
+  .cta-secondary { background: #F8F6F2; color: #6E7563; border: 1.5px solid #6E7563; }
+  .cta-secondary:hover { background: #EDE8DF; }
+  @media (max-width: 440px) { .titulo { font-size: 22px; } .cta { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="titulo">Como a Comunicação Não Violenta funciona na prática.</h1>
+  <p class="subtitulo">A CNV ajuda a transformar reações impulsivas em conversas mais conscientes e claras.</p>
+  <div class="progresso-wrap"><div class="progresso-fill" id="progresso"></div></div>
+  <div class="passos">
+    <div class="passo" onclick="toggle(0)">
+      <div class="passo-num">1</div>
+      <div class="passo-conteudo">
+        <div class="passo-header"><span class="passo-emoji">👁</span><span class="passo-titulo">Observar</span></div>
+        <p class="passo-texto">Ver a situação sem atacar ou julgar. Descreva os fatos como uma câmera filmaria — sem interpretações.</p>
+      </div>
+      <span class="passo-arrow">▼</span>
+    </div>
+    <div class="passo" onclick="toggle(1)">
+      <div class="passo-num">2</div>
+      <div class="passo-conteudo">
+        <div class="passo-header"><span class="passo-emoji">💭</span><span class="passo-titulo">Reconhecer o sentimento</span></div>
+        <p class="passo-texto">Entender como aquilo impactou você. Nomear o que sente sem culpar o outro pela sua experiência interna.</p>
+      </div>
+      <span class="passo-arrow">▼</span>
+    </div>
+    <div class="passo" onclick="toggle(2)">
+      <div class="passo-num">3</div>
+      <div class="passo-conteudo">
+        <div class="passo-header"><span class="passo-emoji">🧩</span><span class="passo-titulo">Identificar a necessidade</span></div>
+        <p class="passo-texto">Perceber o que está faltando ou incomodando. Qual valor ou necessidade não está sendo atendida?</p>
+      </div>
+      <span class="passo-arrow">▼</span>
+    </div>
+    <div class="passo" onclick="toggle(3)">
+      <div class="passo-num">4</div>
+      <div class="passo-conteudo">
+        <div class="passo-header"><span class="passo-emoji">🗣</span><span class="passo-titulo">Fazer um pedido claro</span></div>
+        <p class="passo-texto">Falar de forma objetiva, sem agressividade. Um pedido concreto é diferente de uma exigência.</p>
+      </div>
+      <span class="passo-arrow">▼</span>
+    </div>
+  </div>
+  <div class="frase-final" id="fraseFinal">
+    <div class="frase-aspas">"</div>
+    <p class="frase-texto">CNV não é falar bonito. É aprender a se comunicar sem transformar <em>conflito em ataque.</em></p>
+    <p class="frase-tag">Comunicação Não Violenta — Marshall Rosenberg</p>
+  </div>
+  <div class="cta" id="cta">
+    <a class="cta-btn cta-primary" href="https://cnv-saude-trabalho-8fqcnu9.gamma.site" target="_blank">Ver o projeto completo</a>
+    <a class="cta-btn cta-secondary" href="https://alecandida-collab.github.io/cnv-projeto/animacao_personagens_cnv.html" target="_blank">Ver a animação</a>
+  </div>
+</div>
+<script>
+  var abertos = [], total = 4;
+  function toggle(idx) {
+    var passos = document.querySelectorAll('.passo');
+    var p = passos[idx];
+    if (p.classList.contains('ativo')) { p.classList.remove('ativo'); abertos = abertos.filter(function(i){ return i !== idx; }); }
+    else { p.classList.add('ativo'); if (abertos.indexOf(idx) === -1) abertos.push(idx); }
+    document.getElementById('progresso').style.width = (abertos.length / total * 100) + '%';
+    if (abertos.length === total) { document.getElementById('fraseFinal').classList.add('show'); document.getElementById('cta').classList.add('show'); }
+  }
+  setTimeout(function(){ toggle(0); }, 1500);
+</script>
+</body>
+</html>
